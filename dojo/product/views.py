@@ -61,11 +61,10 @@ logger = logging.getLogger(__name__)
 
 def product(request):
     # validate prod_type param
-    product_type = None
     if 'prod_type' in request.GET:
         p = request.GET.getlist('prod_type', [])
         if len(p) == 1:
-            product_type = get_object_or_404(Product_Type, id=p[0])
+            get_object_or_404(Product_Type, id=p[0])
 
     prods = get_authorized_products(Permissions.Product_View)
 
@@ -515,7 +514,7 @@ def view_product_metrics(request, pid):
 
     start_date = filters['start_date']
     end_date = filters['end_date']
-    week_date = filters['week']
+    filters['week']
 
     tests = Test.objects.filter(engagement__product=prod).prefetch_related('finding_set', 'test_type')
     tests = tests.annotate(verified_finding_count=Count('finding__id', filter=Q(finding__verified=True)))
@@ -534,7 +533,7 @@ def view_product_metrics(request, pid):
     add_breadcrumb(parent=prod, top_level=False, request=request)
 
     open_close_weekly = OrderedDict()
-    new_weekly = OrderedDict()
+    OrderedDict()
     severity_weekly = OrderedDict()
     critical_weekly = OrderedDict()
     high_weekly = OrderedDict()
@@ -604,9 +603,9 @@ def view_product_metrics(request, pid):
 
     for a in filters.get('accepted', None):
         if view == 'Finding':
-            finding = a
+            pass
         elif view == 'Endpoint':
-            finding = v.finding
+            pass
         iso_cal = a.date.isocalendar()
         x = iso_to_gregorian(iso_cal[0], iso_cal[1], 1)
         y = x.strftime("<span class='small'>%m/%d<br/>%Y</span>")
@@ -887,7 +886,7 @@ def edit_product(request, pid):
         jira_project = jira_helper.get_jira_project(product)
         if form.is_valid():
             form.save()
-            tags = request.POST.getlist('tags')
+            request.POST.getlist('tags')
             messages.add_message(request,
                                  messages.SUCCESS,
                                  _('Product updated successfully.'),
@@ -1001,16 +1000,14 @@ def delete_product(request, pid):
 
 @user_is_authorized(Product, Permissions.Engagement_Add, 'pid')
 def new_eng_for_app(request, pid, cicd=False):
-    jira_project = None
     jira_project_form = None
     jira_epic_form = None
 
     product = Product.objects.get(id=pid)
-    jira_error = False
 
     if request.method == 'POST':
         form = EngForm(request.POST, cicd=cicd, product=product, user=request.user)
-        jira_project = jira_helper.get_jira_project(product)
+        jira_helper.get_jira_project(product)
         logger.debug('new_eng_for_app')
 
         if form.is_valid():
@@ -1069,7 +1066,7 @@ def new_eng_for_app(request, pid, cicd=False):
                        product=product, user=request.user)
 
         if get_system_setting('enable_jira'):
-            jira_project = jira_helper.get_jira_project(product)
+            jira_helper.get_jira_project(product)
             logger.debug('showing jira-project-form')
             jira_project_form = JIRAProjectForm(target='engagement', product=product)
             logger.debug('showing jira-epic-form')
@@ -1283,7 +1280,6 @@ def ad_hoc_finding(request, pid):
             new_finding.save()
             # Push to jira?
             push_to_jira = False
-            jira_message = None
             if jform and jform.is_valid():
                 # Push to Jira?
                 logger.debug('jira form valid')
@@ -1292,7 +1288,6 @@ def ad_hoc_finding(request, pid):
                 # if the jira issue key was changed, update database
                 new_jira_issue_key = jform.cleaned_data.get('jira_issue')
                 if new_finding.has_jira_issue:
-                    jira_issue = new_finding.jira_issue
 
                     # everything in DD around JIRA integration is based on the internal id of the issue in JIRA
                     # instead of on the public jira issue key.
@@ -1301,19 +1296,16 @@ def ad_hoc_finding(request, pid):
 
                     if not new_jira_issue_key:
                         jira_helper.finding_unlink_jira(request, new_finding)
-                        jira_message = 'Link to JIRA issue removed successfully.'
 
                     elif new_jira_issue_key != new_finding.jira_issue.jira_key:
                         jira_helper.finding_unlink_jira(request, new_finding)
                         jira_helper.finding_link_jira(request, new_finding, new_jira_issue_key)
-                        jira_message = 'Changed JIRA link successfully.'
                 else:
                     logger.debug('finding has no jira issue yet')
                     if new_jira_issue_key:
                         logger.debug(
                             'finding has no jira issue yet, but jira issue specified in request. trying to link.')
                         jira_helper.finding_link_jira(request, new_finding, new_jira_issue_key)
-                        jira_message = 'Linked a JIRA issue successfully.'
 
             if 'githubform-push_to_github' in request.POST:
                 gform = GITHUBFindingForm(request.POST, prefix='jiragithub', enabled=push_all_jira_issues)

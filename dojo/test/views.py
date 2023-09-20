@@ -199,7 +199,7 @@ def edit_test(request, tid):
     if request.method == 'POST':
         form = TestForm(request.POST, instance=test)
         if form.is_valid():
-            new_test = form.save()
+            form.save()
             messages.add_message(request,
                                  messages.SUCCESS,
                                  _('Test saved.'),
@@ -412,7 +412,6 @@ def add_findings(request, tid):
 
             # Push to jira?
             push_to_jira = False
-            jira_message = None
             if jform and jform.is_valid():
                 # can't use helper as when push_all_jira_issues is True, the checkbox gets disabled and is always false
                 # push_to_jira = jira_helper.is_push_to_jira(new_finding, jform.cleaned_data.get('push_to_jira'))
@@ -421,7 +420,6 @@ def add_findings(request, tid):
                 # if the jira issue key was changed, update database
                 new_jira_issue_key = jform.cleaned_data.get('jira_issue')
                 if new_finding.has_jira_issue:
-                    jira_issue = new_finding.jira_issue
 
                     # everything in DD around JIRA integration is based on the internal id of the issue in JIRA
                     # instead of on the public jira issue key.
@@ -430,18 +428,15 @@ def add_findings(request, tid):
 
                     if not new_jira_issue_key:
                         jira_helper.finding_unlink_jira(request, new_finding)
-                        jira_message = 'Link to JIRA issue removed successfully.'
 
                     elif new_jira_issue_key != new_finding.jira_issue.jira_key:
                         jira_helper.finding_unlink_jira(request, new_finding)
                         jira_helper.finding_link_jira(request, new_finding, new_jira_issue_key)
-                        jira_message = 'Changed JIRA link successfully.'
                 else:
                     logger.debug('finding has no jira issue yet')
                     if new_jira_issue_key:
                         logger.debug('finding has no jira issue yet, but jira issue specified in request. trying to link.')
                         jira_helper.finding_link_jira(request, new_finding, new_jira_issue_key)
-                        jira_message = 'Linked a JIRA issue successfully.'
 
             finding_helper.save_vulnerability_ids(new_finding, form.cleaned_data['vulnerability_ids'].split())
 

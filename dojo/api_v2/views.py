@@ -597,7 +597,7 @@ class EngagementViewSet(
             serialized_note = serializers.NoteSerializer(
                 {"author": author, "entry": entry, "private": private}
             )
-            result = serializers.EngagementToNotesSerializer(
+            serializers.EngagementToNotesSerializer(
                 {"engagement_id": engagement, "notes": [serialized_note.data]}
             )
             return Response(
@@ -1275,7 +1275,7 @@ class FindingViewSet(
             serialized_note = serializers.NoteSerializer(
                 {"author": author, "entry": entry, "private": private}
             )
-            result = serializers.FindingToNotesSerializer(
+            serializers.FindingToNotesSerializer(
                 {"finding_id": finding, "notes": [serialized_note.data]}
             )
             return Response(
@@ -2758,7 +2758,7 @@ class TestsViewSet(
             serialized_note = serializers.NoteSerializer(
                 {"author": author, "entry": entry, "private": private}
             )
-            result = serializers.TestToNotesSerializer(
+            serializers.TestToNotesSerializer(
                 {"test_id": test, "notes": [serialized_note.data]}
             )
             return Response(
@@ -3526,7 +3526,6 @@ def report_generate(request, obj, options):
     test = None
     endpoint = None
     endpoints = None
-    endpoint_monthly_counts = None
 
     include_finding_notes = False
     include_finding_images = False
@@ -3560,13 +3559,13 @@ def report_generate(request, obj, options):
                 )
             ),
         )
-        products = Product.objects.filter(
+        Product.objects.filter(
             prod_type=product_type, engagement__test__finding__in=findings.qs
         ).distinct()
-        engagements = Engagement.objects.filter(
+        Engagement.objects.filter(
             product__prod_type=product_type, test__finding__in=findings.qs
         ).distinct()
-        tests = Test.objects.filter(
+        Test.objects.filter(
             engagement__product__prod_type=product_type,
             finding__in=findings.qs,
         ).distinct()
@@ -3584,7 +3583,7 @@ def report_generate(request, obj, options):
         # include current month
         months_between += 1
 
-        endpoint_monthly_counts = get_period_counts_legacy(
+        get_period_counts_legacy(
             findings.qs.order_by("numerical_severity"),
             findings.qs.order_by("numerical_severity"),
             None,
@@ -3606,10 +3605,10 @@ def report_generate(request, obj, options):
             ),
         )
         ids = set(finding.id for finding in findings.qs)
-        engagements = Engagement.objects.filter(
+        Engagement.objects.filter(
             test__finding__id__in=ids
         ).distinct()
-        tests = Test.objects.filter(finding__id__in=ids).distinct()
+        Test.objects.filter(finding__id__in=ids).distinct()
         ids = get_endpoint_ids(
             Endpoint.objects.filter(product=product).distinct()
         )
@@ -3627,7 +3626,7 @@ def report_generate(request, obj, options):
         report_name = "Engagement Report: " + str(engagement)
 
         ids = set(finding.id for finding in findings.qs)
-        tests = Test.objects.filter(finding__id__in=ids).distinct()
+        Test.objects.filter(finding__id__in=ids).distinct()
         ids = get_endpoint_ids(
             Endpoint.objects.filter(product=engagement.product).distinct()
         )

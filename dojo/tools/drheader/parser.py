@@ -17,7 +17,7 @@ class DrHeaderParser(object):
         items = []
         try:
             data = json.load(filename)
-        except ValueError as err:
+        except ValueError:
             data = {}
         for item in data:
             title = "Header : " + item["rule"]
