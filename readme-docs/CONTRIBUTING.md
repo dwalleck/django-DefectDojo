@@ -63,6 +63,7 @@ Please use [these test scripts](../tests) to test your changes. These are the sc
 For changes that require additional settings, you can now use local_settings.py file. See the logging section below for more information.
 
 ## Python3 Version
+
 For compatibility reasons, the code in dev branch should be python3.11 compliant.
 
 
@@ -88,3 +89,10 @@ DefectDojo.
 [dojo_settings]: /dojo/settings/settings.dist.py "DefectDojo settings file"
 [pep8]: https://www.python.org/dev/peps/pep-0008/ "PEP8"
 [flake8 built-in commit hooks]: https://flake8.pycqa.org/en/latest/user/using-hooks.html#built-in-hook-integration
+
+## Code Review Process
+
+During the review process, one or more reviewers may provide feedback on your changes.
+Requested changes from reviewers should stay within the scope of the PR.
+Please do not resolve comments without any discussion. If you decide not to make a suggested change, make sure to leave a brief reply as a response so that everyone
+is on the same page. The reviewer can then resolve the comment if the reasoning is acceptable.
